@@ -57,7 +57,6 @@ var steps = [
     console.log("Female: " + female);
     console.log("Male: " + male);
     console.log("Celebrities: " + celebrities);
-    console.log("Power Users: " + powerUsers);
     console.log("Casual: " + casual);
     console.log("Novice: " + novice);
     console.log("12 - 17: " + firstAge);
@@ -67,12 +66,6 @@ var steps = [
     console.log("50 - 64: " + fifthAge);
     console.log(".............................");
     shortTime = true;
-  },
-  function() {
-    locations(page.content);
-  },
-  function() {
-    interests(page.content);
   }
 ];
 
@@ -88,49 +81,9 @@ interval = setInterval(function() {
   }
 }, shortTime ? 50 : 60000);
 
-// trait param have to be capitalize. indexOf("Top " + trait) returns the first match.
-function locations(string)  {
-  startLocations = string.indexOf("id=\"allLocations\"");
-  endLocations = string.indexOf(">Audience Interests");
-  locationsString = string.slice(startLocations, endLocations)
-  statesIndex = locationsString.indexOf("Top States");
-  citiesIndex = locationsString.indexOf("Top Cities");
-  countriesString = locationsString.slice(0, statesIndex);
-  statesString = locationsString.slice(statesIndex, citiesIndex);
-  citiesString = locationsString.slice(citiesIndex);
-  zone(countriesString);
-  zone(statesString);
-  zone(citiesString);
-}
 
-function zone(string) {
-  places = string.split("geoLine");
-  numberPlaces = places.length - 1;
-  while (numberPlaces > 0) {
-    place = places[numberPlaces].split(">")[1].split("<")[0].replace(/\s+/g, '');
-    percentage = places[numberPlaces].split("%")[0].slice(-5).split(">")[1];
-    console.log(place + ": " + percentage);
-    numberPlaces--;
-  }
-}
-
-function interests(string) {
-  startInterests = string.indexOf(">Audience Interests");
-  endInterests = string.indexOf("id=\"extraDemographics\"");
-  interestsString = string.slice(startInterests, endInterests)
-
-  topics = interestsString.split("class=\"barText\">")
-  numberTopics = topics.length - 1;
-  while (numberTopics > 0) {
-    topic = topics[numberTopics].split("<a class=\"grayLink\"")[0].replace(/\s+/g, '');
-    percentage = topics[numberTopics].split("class=\"barPercentage\">")[1].split("</span>")[0].replace(/\s+/g, '');
-    console.log(topic + ": " + percentage);
-    numberTopics--;
-  }
-}
-
-function singleTrait(string, selector, firstsym, lastsym, startpoint, endpoint) {
+function singleTrait(string, selector, firstSym, lastSym, startPoint, endPoint) {
   index = string.indexOf(selector);
-  value = string.slice(index - startpoint, index + endpoint).split(firstsym)[0].split(lastsym)[1];
+  value = string.slice(index - startPoint, index + endPoint).split(firstSym)[0].split(lastSym)[1];
   return value;
 }
