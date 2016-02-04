@@ -1,17 +1,9 @@
-var page = require('webpage').create(), testindex = 0, shortTime = false, loadInProgress = false;
-var demographics = {
-                 "gender": {},
-                 "age": {},
-                 "influence": {},
-                 "contries": {},
-                 "states": {},
-                 "cities": {},
-                 "topics": {}
-                 }
+var page = require('webpage').create(), testindex = 0, shortTime = false, loadInProgress = false, demographics = {};
 
 page.onConsoleMessage = function(msg) {
   console.log(msg);
 };
+
 
 page.onLoadStarted = function() {
   loadInProgress = true;
@@ -52,7 +44,6 @@ var steps = [
     target(page.content);
     locations(page.content);
     interests(page.content);
-    console.log(JSON.stringify(demographics));
   }
 ];
 
@@ -69,8 +60,8 @@ interval = setInterval(function() {
 }, shortTime ? 50 : 60000);
 
 function target(source) {
-  female = singleTrait(source, "female", "%", ">", 50, 0);
-  male = singleTrait(source, "male", "%", ">", -100, 140);
+  female = singleTrait(source, "fa-female", "%", ">", 50, 0);
+  male = singleTrait(source, "fa-male", "%", ">", -100, 140);
   celebrities = singleTrait(source, "Celebrities", "%", ">", -30, 50);
   powerUsers = singleTrait(source, "Power Users<", "%", ">", -30, 50);
   casual = singleTrait(source, "Casual", "%", ">", -30, 50);
@@ -81,17 +72,40 @@ function target(source) {
   fourthAge = singleTrait(source, "35 - 49", "%", ">", -30, 50);
   fifthAge = singleTrait(source, "50 - 64", "%", ">", -30, 50);
 
-  append_value("gender", "female", female);
-  append_value("gender", "male", male);
-  append_value("influence", "celebrities", celebrities);
-  append_value("influence", "powerUser", powerUsers);
-  append_value("influence", "casual", casual);
-  append_value("influence", "novice", novice);
-  append_value("age", "12 - 17", firstAge);
-  append_value("age", "18 - 24", secondAge);
-  append_value("age", "25 - 34", thirdAge);
-  append_value("age", "35 - 49", fourthAge);
-  append_value("age", "50 - 64", fifthAge);
+  demographics.target = {
+                          "gender": {
+                            "female": female,
+                            "male": male
+                            },
+                          "age": {
+                            "12 - 17": firstAge,
+                            "18 - 24": secondAge,
+                            "25 - 34": thirdAge,
+                            "35 - 49": fourthAge,
+                            "50 - 64": fifthAge
+                            },
+                          "influence": {
+                            "celebrities": celebrities,
+                            "powerUsers": powerUsers,
+                            "casual": casual,
+                            "novice": novice
+                            }
+                        }
+/*
+    console.log(".............................");
+    console.log("Female: " + female);
+    console.log("Male: " + male);
+    console.log("Celebrities: " + celebrities);
+    console.log("Power Users: " + powerUsers);
+    console.log("Casual: " + casual);
+    console.log("Novice: " + novice);
+    console.log("12 - 17: " + firstAge);
+    console.log("18 - 24: " + secondAge);
+    console.log("25 - 34: " + thirdAge);
+    console.log("35 - 49: " + fourthAge);
+    console.log("50 - 64: " + fifthAge);
+    console.log(".............................");
+*/
 }
 
 function singleTrait(string, selector, firstsym, lastsym, startpoint, endpoint) {
@@ -99,11 +113,6 @@ function singleTrait(string, selector, firstsym, lastsym, startpoint, endpoint) 
   value = string.slice(index - startpoint, index + endpoint).split(firstsym)[0].split(lastsym)[1];
   return value;
 }
-
-function append_value(group, key, value) {
-  demographics[group][key] = value;
-}
-
 // trait param have to be capitalize. indexOf("Top " + trait) returns the first match.
 function locations(string)  {
   startLocations = string.indexOf("id=\"allLocations\"");
@@ -114,18 +123,18 @@ function locations(string)  {
   countriesString = locationsString.slice(0, statesIndex);
   statesString = locationsString.slice(statesIndex, citiesIndex);
   citiesString = locationsString.slice(citiesIndex);
-  zone("contries", countriesString);
-  zone("states", statesString);
-  zone("cities", citiesString);
+  zone(countriesString);
+  zone(statesString);
+  zone(citiesString);
 }
 
-function zone(area, string) {
+function zone(string) {
   places = string.split("geoLine");
   numberPlaces = places.length - 1;
   while (numberPlaces > 0) {
     place = places[numberPlaces].split(">")[1].split("<")[0].replace(/\s+/g, '');
     percentage = places[numberPlaces].split("%")[0].slice(-5).split(">")[1];
-    append_value(area, place, percentage);
+    console.log(place + ": " + percentage);
     numberPlaces--;
   }
 }
@@ -140,7 +149,8 @@ function interests(string) {
   while (numberTopics > 0) {
     topic = topics[numberTopics].split("<a class=\"grayLink\"")[0].replace(/\s+/g, '');
     percentage = topics[numberTopics].split("class=\"barPercentage\">")[1].replace(/\s+/g, '').split("%</span>")[0];
-    append_value("topics", topic, percentage);
+    console.log(topic + ": " + percentage);
     numberTopics--;
   }
 }
+
